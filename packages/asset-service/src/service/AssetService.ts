@@ -10,14 +10,17 @@ import localAssetData from './generatedAssetData.json'
 type DescriptionData = Readonly<{
   description: string
   isTrusted?: boolean
+  locale?: string
 }>
 
 export type AssetsById = {
   [k: AssetId]: Asset
 }
+export type LocaleCode = string
 
 export class AssetService {
   private readonly assets: AssetsById
+  locale: LocaleCode
 
   constructor() {
     this.assets = localAssetData as AssetsById
@@ -27,17 +30,17 @@ export class AssetService {
     return this.assets
   }
 
-  async description(assetId: AssetId): Promise<DescriptionData> {
+  async description(assetId: AssetId, locale: LocaleCode): Promise<DescriptionData> {
     // deliberately loosen type def from statically defined json
     const descriptions: Record<string, string> = assetsDescriptions
     const description = descriptions[assetId]
     // Return overridden asset description if it exists and add isTrusted for description links
-    if (description) return { description, isTrusted: true }
+    if (description) return { description, isTrusted: true, locale }
 
     try {
       type CoinData = {
         description: {
-          ko: string
+          locale: string
         }
       }
       const chain = chainIdToCoingeckoAssetPlatform(this.assets[assetId].chainId)
@@ -54,7 +57,7 @@ export class AssetService {
         `https://api.coingecko.com/api/v3/coins/${chain}${contractUrlOrNativeToken}`
       )
 
-      return { description: data?.description?.ko ?? '' }
+      return { description: data?.description?.locale ?? '' }
     } catch (e) {
       const errorMessage = `AssetService:description: no description available for ${assetId}`
       throw new Error(errorMessage)
