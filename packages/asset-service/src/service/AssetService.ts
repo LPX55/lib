@@ -37,7 +37,7 @@ export class AssetService {
     try {
       type CoinData = {
         description: {
-          en: string
+          ko: string
         }
       }
       const chain = chainIdToCoingeckoAssetPlatform(this.assets[assetId].chainId)
@@ -54,7 +54,7 @@ export class AssetService {
         `https://api.coingecko.com/api/v3/coins/${chain}${contractUrlOrNativeToken}`
       )
 
-      return { description: data?.description?.en ?? '' }
+      return { description: data?.description?.ko ?? '' }
     } catch (e) {
       const errorMessage = `AssetService:description: no description available for ${assetId}`
       throw new Error(errorMessage)
